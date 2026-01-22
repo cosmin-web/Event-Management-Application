@@ -1,0 +1,22 @@
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
+WORKDIR /build
+
+COPY ../pom.xml /build/pom.xml
+COPY ../idm-proto /build/idm-proto
+COPY ../idm-service /build/idm-service
+COPY ../client-service /build/client-service
+COPY ../event-service /build/event-service
+COPY ../gateway-service /build/gateway-service
+
+RUN mvn -q -pl idm-service -am clean package -DskipTests
+
+FROM eclipse-temurin:21-jre
+
+RUN groupadd -r app && useradd -r -g app -d /app -s /sbin/nologin app
+
+WORKDIR /app
+COPY --from=builder --chown=app:app /build/idm-service/target/idm-service-*.jar /app/app.jar
+
+USER app
+EXPOSE 9090
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

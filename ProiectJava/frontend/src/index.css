@@ -1,0 +1,92 @@
+:root {
+  --primary: #4f46e5;
+  --secondary: #64748b;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.card.narrow {
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-primary { background-color: var(--primary); color: white; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-secondary { background-color: #e2e8f0; color: #475569; }
+.btn-secondary:hover { background-color: #cbd5e1; }
+
+.btn-danger { background-color: var(--danger); color: white; }
+.btn-success { background-color: var(--success); color: white; }
+.btn-warning { background-color: var(--warning); color: white; }
+
+.btn-sm { padding: 6px 12px; fontSize: 0.85rem; }
+.w-100 { width: 100%; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #475569; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.form-group input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+.text-muted { color: #64748b; font-size: 0.9rem; }
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-blue { background: #e0e7ff; color: #4f46e5; }
+.badge-green { background: #dcfce7; color: #166534; }

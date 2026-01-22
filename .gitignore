@@ -1,0 +1,16 @@
+# Secrete si configurari locale 
+.env
+*.env
+application.properties
+
+# Fisiere compilate Java
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store

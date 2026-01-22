@@ -1,0 +1,121 @@
+services:
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}
+    container_name: mariadb
+    restart: unless-stopped
+    ports:
+      - "${MARIADB_PORT}:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
+      MARIADB_DATABASE: "${MARIADB_DATABASE}"
+      MARIADB_USER: "${MARIADB_USER}"
+      MARIADB_PASSWORD: "${MARIADB_PASSWORD}"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      MONGO_INITDB_DATABASE: clientsdb
+    volumes:
+      - mongo_data:/data/db
+
+  event-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.event-service
+    container_name: event-service
+    restart: on-failure
+    network_mode: "host"
+    environment:
+      SERVER_PORT: "8083"
+      IDM_HOST: "localhost"
+      IDM_PORT: "9090"
+      SPRING_DATASOURCE_URL: "jdbc:mariadb://127.0.0.1:${MARIADB_PORT}/${MARIADB_DATABASE}"
+      SPRING_DATASOURCE_USERNAME: "${MARIADB_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MARIADB_PASSWORD}"
+      SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.MariaDBDialect"
+      JAVA_TOOL_OPTIONS: "-Djava.io.tmpdir=/tmp"
+    depends_on:
+      - mariadb
+      - idm-service
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    init: true
+
+  client-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.client-service
+    container_name: client-service
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      SERVER_PORT: "8082"
+      IDM_HOST: "localhost"
+      IDM_PORT: "9090"
+      SPRING_DATA_MONGODB_URI: "mongodb://127.0.0.1:27017/clientsdb"
+      CLIENT_EVENT_SERVICE_BASE_URL: "http://127.0.0.1:8083/api/event-manager"
+      JAVA_TOOL_OPTIONS: "-Djava.io.tmpdir=/tmp"
+    depends_on:
+      - mongodb
+      - event-service
+      - idm-service
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    init: true
+
+  idm-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.idm-service
+    container_name: idm-service
+    restart: unless-stopped
+    network_mode: "host"
+    depends_on:
+      - mariadb
+    environment:
+      SERVER_PORT: "8081"
+      GRPC_SERVER_PORT: "9090"
+      JWT_SECRET: "${JWT_SECRET}"
+      SPRING_DATASOURCE_URL: "jdbc:mariadb://127.0.0.1:${MARIADB_PORT}/${MARIADB_DATABASE}"
+      SPRING_DATASOURCE_USERNAME: "${MARIADB_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MARIADB_PASSWORD}"
+      SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.MariaDBDialect"
+      JAVA_TOOL_OPTIONS: "-Djava.io.tmpdir=/tmp"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    init: true
+
+  gateway-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gateway-service
+    container_name: gateway-service
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Djava.io.tmpdir=/tmp"
+
+volumes:
+  mariadb_data:
+  mongo_data:
